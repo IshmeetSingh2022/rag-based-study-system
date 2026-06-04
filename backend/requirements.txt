@@ -1,0 +1,30 @@
+# Web Framework
+fastapi==0.111.0
+uvicorn==0.29.0
+
+# Database
+sqlalchemy==2.0.30
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# Auth & Security
+python-jose[cryptography]==3.3.0
+bcrypt==4.1.3
+passlib==1.7.4
+
+# Pydantic & Settings
+pydantic==2.7.1
+pydantic-settings==2.2.1
+
+# File Handling
+python-multipart==0.0.9
+pypdf2==3.0.1
+
+# RAG - Core
+openai==1.30.1
+langchain==0.2.1
+langchain-openai==0.1.8
+langchain-community==0.2.1
+
+# Vector Store
+chromadb==0.5.0
