@@ -1,16 +1,23 @@
 # Virtual Environment
-venv/
+backend/venv/
 
 # Python
-__pycache__/
-*.pyc
-*.pyo
+**/__pycache__/
+**/*.pyc
+**/*.pyo
 
 # Environment variables
-.env
+**/.env
 
 # ChromaDB
-chroma_db/
+backend/chroma_db/
 
 # Uploads
-uploads/
+backend/uploads/
+
+# Editor
+.vscode/
+
+# Frontend
+frontend/node_modules/
+frontend/studdy-buddy-frontend/dist/

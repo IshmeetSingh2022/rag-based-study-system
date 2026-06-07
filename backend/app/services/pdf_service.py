@@ -27,7 +27,7 @@ def process_pdf(file_path:str,document_id:int)->int:
     embeddings=OpenAIEmbeddings(api_key=settings.OPENAI_API_KEY)
 
     vectorstore=Chroma(
-        embedding_function=OpenAIEmbeddings,
+        embedding_function=embeddings,
         collection_name=f"document_{document_id}",
         persist_directory=CHROMA_DIR,
     )

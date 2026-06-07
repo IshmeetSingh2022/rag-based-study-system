@@ -6,7 +6,7 @@ from app.core.security import hash_password,verify_password,create_access_token
 def signup_user(data:SignUpRequest,db:Session):
     existing_user=db.query(User).filter(User.username==data.username).first()
     if existing_user:
-        raise HTTPException(staus_code=400,detail="Username already exists")
+        raise HTTPException(status_code=400, detail="Username already exists")
     hashed=hash_password(data.password)
 
     new_user=User(
@@ -14,14 +14,14 @@ def signup_user(data:SignUpRequest,db:Session):
         password=hashed
     )
     db.add(new_user)
-    db.commit(new_user)
+    db.commit()
     return {"message":"User created succesfully"}
 
 def login_user(data:LoginRequest,db:Session):
     user=db.query(User).filter(User.username==data.username).first()
 
     if not user or not verify_password(data.password,user.password):
-        return HTTPException(status_code=401,detail="Invalid Credential")
+        raise HTTPException(status_code=401,detail="Invalid Credential")
     
     token=create_access_token(
         data={

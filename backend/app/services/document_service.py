@@ -48,7 +48,7 @@ def get_user_documents(user_id: int, db: Session) -> list:
         Document.user_id == user_id
     ).all()
 
-def delete_doument(document_id:int,user_id:int,db:Session):
+def delete_document(document_id:int,user_id:int,db:Session):
 
     doc = db.query(Document).filter(
         Document.id == document_id,
