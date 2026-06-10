@@ -38,7 +38,12 @@ def upload_document(
     db.commit()
     db.refresh(new_doc)
 
-    chunk_count=process_pdf(file_path,new_doc.id)
+    chunk_count = 0
+    try:
+        chunk_count = process_pdf(file_path, new_doc.id)
+    except Exception as e:
+        print(f"PDF PROCESSING ERROR: {e}")
+
     new_doc.chunk_count = chunk_count
     db.commit()
     return new_doc

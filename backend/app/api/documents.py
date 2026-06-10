@@ -10,21 +10,22 @@ from app.services.document_service import (
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
 
-
 @router.post("/upload", response_model=DocumentResponse)
 def upload(
     file: UploadFile = File(...),
-    subject: str = Form(...),
+    subject: str = Form(default="General"),
     db: Session = Depends(get_db),
-    request: Request=None
+    request: Request = None
 ):
+    print(f"FILE: {file.filename}")
+    print(f"SUBJECT: {subject}")
     return upload_document(file, subject, request.state.user_id, db)
 
 
 @router.get("/", response_model=list[DocumentResponse])
 def get_documents(
     db: Session = Depends(get_db),
-    request: Request=None
+    request: Request = None
 ):
     return get_user_documents(request.state.user_id, db)
 
@@ -33,6 +34,6 @@ def get_documents(
 def delete(
     document_id: int,
     db: Session = Depends(get_db),
-    request: Request=None
+    request: Request = None
 ):
     return delete_document(document_id, request.state.user_id, db)

@@ -1,36 +1,38 @@
-import { useState } from "react";
-import { api } from "../api";
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useAuth } from "../context/AuthContext"
+import { authApi } from "../api/auth"
 
-export default function AuthPage({ onLogin }) {
-  const [mode, setMode] = useState("login");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+export default function AuthPage() {
+  const { login } = useAuth()
+  const navigate = useNavigate()
+
+  const [mode, setMode] = useState("login")
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const submit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+    e.preventDefault()
+    setError("")
+    setLoading(true)
     try {
-      const res = await api(`/auth/${mode}`, {
-        method: "POST",
-        body: JSON.stringify({ username, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Kuch galat hua");
       if (mode === "signup") {
-        setMode("login");
-        setError("Account ban gaya! Ab login karo.");
-        setLoading(false);
-        return;
+        await authApi.signup(username, password)
+        setMode("login")
+        setError("Account ban gaya! Ab login karo.")
+        setLoading(false)
+        return
       }
-      onLogin(data);
+      const data = await authApi.login(username, password)
+      login(data)
+      navigate("/")
     } catch (err) {
-      setError(err.message);
+      setError(err.message)
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -47,15 +49,13 @@ export default function AuthPage({ onLogin }) {
           <p className="text-gray-500 text-sm mt-1">Tumhara intelligent study companion</p>
         </div>
 
-       
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
 
-       
           <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
             {["login", "signup"].map((m) => (
               <button
                 key={m}
-                onClick={() => { setMode(m); setError(""); }}
+                onClick={() => { setMode(m); setError("") }}
                 className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-150 cursor-pointer
                   ${mode === m
                     ? "bg-white text-gray-800 shadow-sm"
@@ -67,29 +67,22 @@ export default function AuthPage({ onLogin }) {
             ))}
           </div>
 
-          
           <form onSubmit={submit}>
 
-          
             <div className="mb-4">
-              <label className="block text-sm text-gray-600 mb-1.5">
-                Username
-              </label>
+              <label className="block text-sm text-gray-600 mb-1.5">Username</label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Name"
+                placeholder="tumhara_naam"
                 required
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
               />
             </div>
 
-            
             <div className="mb-6">
-              <label className="block text-sm text-gray-600 mb-1.5">
-                Password
-              </label>
+              <label className="block text-sm text-gray-600 mb-1.5">Password</label>
               <input
                 type="password"
                 value={password}
@@ -100,10 +93,9 @@ export default function AuthPage({ onLogin }) {
               />
             </div>
 
-          
             {error && (
               <p className={`text-sm px-4 py-2.5 rounded-xl mb-4 ${
-                error.includes("Made")
+                error.includes("ban gaya")
                   ? "bg-green-50 text-green-600"
                   : "bg-red-50 text-red-500"
               }`}>
@@ -120,12 +112,12 @@ export default function AuthPage({ onLogin }) {
                 ? "Please wait…"
                 : mode === "login"
                 ? "Log in"
-                : "Make Your Account"}
+                : "Account banao"}
             </button>
 
           </form>
         </div>
       </div>
     </div>
-  );
+  )
 }
