@@ -53,21 +53,33 @@ def get_user_documents(user_id: int, db: Session) -> list:
         Document.user_id == user_id
     ).all()
 
-def delete_document(document_id:int,user_id:int,db:Session):
+from app.models.message import Message  # ← import add karo
 
+def delete_document(document_id: int, user_id: int, db: Session):
     doc = db.query(Document).filter(
         Document.id == document_id,
         Document.user_id == user_id
     ).first()
-    
+
     if not doc:
         raise HTTPException(
             status_code=404,
             detail="Document not found"
         )
+
+   
+    db.query(Message).filter(
+        Message.document_id == document_id
+    ).delete()
+
+    
     if os.path.exists(doc.file_path):
         os.remove(doc.file_path)
+
+    
     db.delete(doc)
     db.commit()
 
     return {"message": "Document deleted successfully"}
+
+    
