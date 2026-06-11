@@ -5,7 +5,7 @@ from langchain_openai import OpenAIEmbeddings
 from app.core.config import settings
 import os
 
-CHROMA_DIR = "./chroma_db"
+CHROMA_DIR = "/app/data/chroma_db"
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 

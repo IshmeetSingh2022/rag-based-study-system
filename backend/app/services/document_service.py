@@ -6,7 +6,7 @@ from fastapi import UploadFile, HTTPException
 from app.models.document import Document
 from app.services.pdf_service import process_pdf
 
-UPLOAD_DIR = "./uploads"
+UPLOAD_DIR = "/app/data/uploads"
 def upload_document(
         file:UploadFile,
         subject:str,
