@@ -35,3 +35,14 @@ def process_pdf(file_path:str,document_id:int)->int:
     vectorstore.add_documents(all_chunks)
 
     return len(all_chunks)
+
+def delete_pdf_chunks(document_id: int):
+    embeddings = OpenAIEmbeddings(api_key=settings.OPENAI_API_KEY)
+    
+    vectorstore = Chroma(
+        persist_directory=CHROMA_DIR,
+        embedding_function=embeddings,
+        collection_name=f"document_{document_id}"
+    )
+    
+    vectorstore.delete_collection()

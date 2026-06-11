@@ -54,6 +54,7 @@ def get_user_documents(user_id: int, db: Session) -> list:
     ).all()
 
 from app.models.message import Message  # ← import add karo
+from app.services.pdf_service import process_pdf, delete_pdf_chunks
 
 def delete_document(document_id: int, user_id: int, db: Session):
     doc = db.query(Document).filter(
@@ -62,24 +63,25 @@ def delete_document(document_id: int, user_id: int, db: Session):
     ).first()
 
     if not doc:
-        raise HTTPException(
-            status_code=404,
-            detail="Document not found"
-        )
+        raise HTTPException(status_code=404, detail="Document not found")
 
    
     db.query(Message).filter(
         Message.document_id == document_id
     ).delete()
 
+   
+    try:
+        delete_pdf_chunks(document_id)
+    except Exception as e:
+        print(f"CHROMA DELETE ERROR: {e}")
+
     
     if os.path.exists(doc.file_path):
         os.remove(doc.file_path)
 
-    
+  
     db.delete(doc)
     db.commit()
 
     return {"message": "Document deleted successfully"}
-
-    
