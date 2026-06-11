@@ -14,7 +14,7 @@ passlib==1.7.4
 
 # Pydantic & Settings
 pydantic==2.7.1
-pydantic-core==2.18.2
+pydantic-core
 pydantic-settings==2.2.1
 
 # File Handling
