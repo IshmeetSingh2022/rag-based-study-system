@@ -7,7 +7,7 @@ sqlalchemy==2.0.30
 psycopg2-binary==2.9.9
 alembic==1.13.1
 
-# Auth & Security
+# Authentication & Security
 python-jose[cryptography]==3.3.0
 bcrypt==4.1.3
 passlib==1.7.4
@@ -19,10 +19,9 @@ pydantic-settings==2.2.1
 # File Handling
 python-multipart==0.0.9
 pypdf==4.2.0
-pypdf2==3.0.1
 
-# RAG - Core
-openai==1.57.0
+# OpenAI & LangChain
+openai==1.58.1
 langchain==0.3.14
 langchain-openai==0.2.14
 langchain-community==0.3.14
@@ -31,3 +30,6 @@ langchain-text-splitters==0.3.5
 # Vector Store
 chromadb==0.5.0
 langchain-chroma==0.1.4
+
+# ASGI Server Dependencies
+anyio>=4.0.0
