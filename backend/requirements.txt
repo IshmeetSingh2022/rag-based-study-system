@@ -14,10 +14,12 @@ passlib==1.7.4
 
 # Pydantic & Settings
 pydantic==2.7.1
+pydantic-core==2.18.2
 pydantic-settings==2.2.1
 
 # File Handling
 python-multipart==0.0.9
+pypdf==4.2.0
 pypdf2==3.0.1
 
 # RAG - Core
