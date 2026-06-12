@@ -1,4 +1,4 @@
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from sqlalchemy.orm import Session
 from langchain_core.messages import HumanMessage, AIMessage
 from app.models.message import Message
@@ -9,6 +9,14 @@ from langchain_chroma import Chroma
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableParallel
 
 CHROMA_DIR = "./chroma_db"
+
+rewrite_prompt = PromptTemplate.from_template("""You are a query rewriter. 
+Rewrite this question to be more specific for searching in a document.
+Add relevant keywords that might appear in the document.
+
+Original question: {question}
+
+Rewritten question:""")
 
 prompt = ChatPromptTemplate.from_messages([
     (
@@ -89,6 +97,13 @@ def get_rag_response(question: str, document_id: int, user_id: int, db: Session)
         temperature=0.3
     )
 
+    # Step 1 — Question rewrite karo
+    rewrite_chain = rewrite_prompt | llm | StrOutputParser()
+    rewritten_question = rewrite_chain.invoke({"question": question})
+    print(f"ORIGINAL: {question}")
+    print(f"REWRITTEN: {rewritten_question}")
+
+    # Step 2 — Rewritten question se chunks dhundho aur answer do
     parallel_chain = RunnableParallel({
         "context": retriever | RunnableLambda(format_docs),
         "question": RunnablePassthrough(),
@@ -97,8 +112,9 @@ def get_rag_response(question: str, document_id: int, user_id: int, db: Session)
 
     chain = parallel_chain | prompt | llm | StrOutputParser()
 
-    answer = chain.invoke(question)
+    answer = chain.invoke(rewritten_question)
 
+    # Step 3 — Save karo
     save_messages(db, user_id, document_id, question, answer)
 
     return answer
