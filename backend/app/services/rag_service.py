@@ -13,12 +13,14 @@ CHROMA_DIR = "./chroma_db"
 prompt = ChatPromptTemplate.from_messages([
     (
         "system",
-        """You are a helpful study assistant.
-        Answer based on the context provided below.
-        If the context has relevant information, use it to answer thoroughly.
-        If the answer is not in the context, say: 'Not enough information.'
+        """You are a helpful study assistant. 
+        You have been given content extracted from a PDF document.
+        Answer the user's question based ONLY on the context below.
+        Do not say you cannot access PDFs - the content is already provided to you.
+        If the context contains relevant information, explain it thoroughly.
+        If the answer truly cannot be found in the context, say: 'This topic is not covered in the document.'
         
-        Context:
+        Context from the document:
         {context}
         """
     ),
