@@ -10,9 +10,13 @@ from langchain_core.runnables import RunnablePassthrough, RunnableLambda, Runnab
 
 CHROMA_DIR = "./chroma_db"
 
-rewrite_prompt = PromptTemplate.from_template("""You are a query rewriter. 
-Rewrite this question to be more specific for searching in a document.
-Add relevant keywords that might appear in the document.
+rewrite_prompt = PromptTemplate.from_template("""You are a query rewriter for a document search system.
+The user uploaded a document: "{filename}"
+
+Rewrite the user's question to better search within this document.
+- Do NOT assume what topics are in the document
+- Keep the rewritten question broad enough to find relevant chunks
+- Add synonyms and related terms
 
 Original question: {question}
 
@@ -97,13 +101,13 @@ def get_rag_response(question: str, document_id: int, user_id: int, db: Session)
         temperature=0.3
     )
 
-    # Step 1 — Question rewrite karo
+   
     rewrite_chain = rewrite_prompt | llm | StrOutputParser()
     rewritten_question = rewrite_chain.invoke({"question": question})
     print(f"ORIGINAL: {question}")
     print(f"REWRITTEN: {rewritten_question}")
 
-    # Step 2 — Rewritten question se chunks dhundho aur answer do
+   
     parallel_chain = RunnableParallel({
         "context": retriever | RunnableLambda(format_docs),
         "question": RunnablePassthrough(),
@@ -114,7 +118,6 @@ def get_rag_response(question: str, document_id: int, user_id: int, db: Session)
 
     answer = chain.invoke(rewritten_question)
 
-    # Step 3 — Save karo
     save_messages(db, user_id, document_id, question, answer)
 
     return answer
