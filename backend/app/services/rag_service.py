@@ -13,14 +13,17 @@ CHROMA_DIR = "./chroma_db"
 prompt = ChatPromptTemplate.from_messages([
     (
         "system",
-        """You are a helpful study assistant. 
-        You have been given content extracted from a PDF document.
-        Answer the user's question based ONLY on the context below.
-        Do not say you cannot access PDFs - the content is already provided to you.
-        If the context contains relevant information, explain it thoroughly.
-        If the answer truly cannot be found in the context, say: 'This topic is not covered in the document.'
+        """You are a helpful study assistant.
+        The context below is extracted from a PDF document the user uploaded.
         
-        Context from the document:
+        IMPORTANT RULES:
+        - Always answer based on the context provided
+        - For generic questions like "summarize", "key concepts", "main topics" — 
+          use ALL the context to give a comprehensive answer
+        - Never say you cannot access the PDF
+        - Only say "not covered" if context is completely empty
+        
+        Context from document:
         {context}
         """
     ),
