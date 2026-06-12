@@ -79,11 +79,9 @@ def get_rag_response(question: str, document_id: int, user_id: int, db: Session)
     )
 
     retriever = vector_store.as_retriever(
-    search_type="similarity",  
-    search_kwargs={
-        "k": 6,  
-    }
-   )
+        search_type="similarity",
+        search_kwargs={"k": 10}
+    )
 
     llm = ChatOpenAI(
         api_key=settings.OPENAI_API_KEY,
