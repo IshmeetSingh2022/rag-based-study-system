@@ -1,4 +1,4 @@
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from sqlalchemy.orm import Session
 from langchain_core.messages import HumanMessage, AIMessage
 from app.models.message import Message
@@ -6,21 +6,14 @@ from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from app.core.config import settings
 from langchain_core.output_parsers import StrOutputParser
 from langchain_chroma import Chroma
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableParallel
 
 CHROMA_DIR = "./chroma_db"
 
-rewrite_prompt = PromptTemplate.from_template("""You are a query rewriter for a document search system.
-The user uploaded a document: "{filename}"
-
-Rewrite the user's question to better search within this document.
-- Do NOT assume what topics are in the document
-- Keep the rewritten question broad enough to find relevant chunks
-- Add synonyms and related terms
-
-Original question: {question}
-
-Rewritten question:""")
+GENERIC_KEYWORDS = [
+    "key concepts", "main topics", "summarize", "summary",
+    "explain all", "overview", "what is covered", "what does it cover",
+    "what is in", "tell me about"
+]
 
 prompt = ChatPromptTemplate.from_messages([
     (
@@ -46,6 +39,10 @@ prompt = ChatPromptTemplate.from_messages([
 
 def format_docs(docs) -> str:
     return "\n\n".join(doc.page_content for doc in docs)
+
+
+def is_generic_question(question: str) -> bool:
+    return any(kw in question.lower() for kw in GENERIC_KEYWORDS)
 
 
 def get_chat_history(db: Session, user_id: int, document_id: int) -> list:
@@ -101,22 +98,30 @@ def get_rag_response(question: str, document_id: int, user_id: int, db: Session)
         temperature=0.3
     )
 
-   
-    rewrite_chain = rewrite_prompt | llm | StrOutputParser()
-    rewritten_question = rewrite_chain.invoke({"question": question})
-    print(f"ORIGINAL: {question}")
-    print(f"REWRITTEN: {rewritten_question}")
+    # Context nikalo
+    if is_generic_question(question):
+        result = vector_store.get()
+        documents = result.get('documents', [])
+        print(f"GENERIC — all chunks: {len(documents)}")
+        context = "\n\n".join(documents[:12])
+    else:
+        docs = retriever.invoke(question)
+        print(f"SPECIFIC — retrieved: {len(docs)} chunks")
+        context = format_docs(docs)
 
-   
-    parallel_chain = RunnableParallel({
-        "context": retriever | RunnableLambda(format_docs),
-        "question": RunnablePassthrough(),
-        "chat_history": RunnableLambda(lambda _: get_chat_history(db, user_id, document_id))
+    print(f"CONTEXT LENGTH: {len(context)}")
+
+    
+    chat_history = get_chat_history(db, user_id, document_id)
+
+    
+    chain = prompt | llm | StrOutputParser()
+
+    answer = chain.invoke({
+        "context": context,
+        "question": question,
+        "chat_history": chat_history,
     })
-
-    chain = parallel_chain | prompt | llm | StrOutputParser()
-
-    answer = chain.invoke(rewritten_question)
 
     save_messages(db, user_id, document_id, question, answer)
 
