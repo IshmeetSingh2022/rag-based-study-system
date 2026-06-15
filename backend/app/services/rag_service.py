@@ -7,7 +7,7 @@ from app.core.config import settings
 from langchain_core.output_parsers import StrOutputParser
 from langchain_chroma import Chroma
 
-CHROMA_DIR = "./chroma_db"
+CHROMA_DIR = "/app/data/chroma_db"
 
 GENERIC_KEYWORDS = [
     "key concepts", "main topics", "summarize", "summary",
